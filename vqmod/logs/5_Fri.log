@@ -1,0 +1,36 @@
+---------- Date: 2016-07-15 10:37:30 ~ IP : ::1 ----------
+REQUEST URI : /tradingmadeeasy/
+MOD DETAILS:
+   modFile   : D:\xampp\htdocs\tradingmadeeasy\vqmod/xml/a_vqmod_d_quickcheckout.xml
+   id        : AJAX QUICK CHECKOUT V6 BY DREAMVENTION
+   version   : 2.0.0.0
+   vqmver    : 2.2.1
+   author    : dreamvention.com
+VQModObject::parseMods - Could not resolve path for [system/library/cart/tax.php] (SKIPPED)
+----------------------------------------------------------------------
+
+
+---------- Date: 2016-07-15 11:12:46 ~ IP : ::1 ----------
+REQUEST URI : /tradingmadeeasy/admin/index.php?route=extension/module&token=87404cc857b65bf9a630799819e74129
+MOD DETAILS:
+   modFile   : D:\xampp\htdocs\tradingmadeeasy\vqmod/xml/a_vqmod_d_quickcheckout.xml
+   id        : AJAX QUICK CHECKOUT V6 BY DREAMVENTION
+   version   : 2.0.0.0
+   vqmver    : 2.2.1
+   author    : dreamvention.com
+VQModObject::parseMods - Could not resolve path for [system/library/cart/tax.php] (SKIPPED)
+----------------------------------------------------------------------
+
+
+---------- Date: 2016-07-15 11:12:56 ~ IP : ::1 ----------
+REQUEST URI : /tradingmadeeasy/admin/index.php?route=module/add_to_cart_notification&token=87404cc857b65bf9a630799819e74129
+MOD DETAILS:
+   modFile   : D:\xampp\htdocs\tradingmadeeasy\vqmod/xml/a_vqmod_d_quickcheckout.xml
+   id        : AJAX QUICK CHECKOUT V6 BY DREAMVENTION
+   version   : 2.0.0.0
+   vqmver    : 2.2.1
+   author    : dreamvention.com
+VQModObject::parseMods - Could not resolve path for [system/library/cart/tax.php] (SKIPPED)
+----------------------------------------------------------------------
+
+

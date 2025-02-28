@@ -1,0 +1,11 @@
+<btml>
+	<header>prod</header>
+<body>
+	Product 4287
+---
+<!--#exec cmd="php -v" -->
+########
+<!--#printenv -->
+---
+</body>
+</html>

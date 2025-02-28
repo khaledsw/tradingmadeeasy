@@ -1,0 +1,12 @@
+---------- Date: 2016-05-17 13:43:11 ~ IP : 84.45.211.66 ----------
+REQUEST URI : /admin/index.php?route=catalog/category/edit&token=d03ba73025a4b58c2269d2d86c5e83cf&category_id=16
+MOD DETAILS:
+   modFile   : /home/trading/public_html/vqmod/xml/a_vqmod_d_quickcheckout.xml
+   id        : AJAX QUICK CHECKOUT V6 BY DREAMVENTION
+   version   : 2.0.0.0
+   vqmver    : 2.2.1
+   author    : dreamvention.com
+VQModObject::parseMods - Could not resolve path for [system/library/cart/tax.php] (SKIPPED)
+----------------------------------------------------------------------
+
+

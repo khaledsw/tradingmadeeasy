@@ -1,0 +1,156 @@
+<modification>
+	<id>Add to Cart Notification</id>
+	<version>OC 2</version>
+	<vqmver>2.5.0</vqmver>
+	<author>Equotix</author>
+	<file name="catalog/controller/common/header.php">
+		<operation>
+			<search position="after"><![CDATA[
+				function index() {
+			]]></search>
+			<add><![CDATA[
+				if ($this->validated()) {
+					$this->document->addScript('catalog/view/javascript/add_to_cart_notification.js');
+					$this->document->addStyle('catalog/view/javascript/add_to_cart_notification.css');
+				}
+			]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[
+				class ControllerCommonHeader extends Controller {
+			]]></search>
+			<add><![CDATA[
+				require_once(substr_replace(DIR_SYSTEM, '', -7) . 'vendor/equotix/add_to_cart_notification/equotix.php');
+				class ControllerCommonHeader extends Equotix {
+					protected $code = 'add_to_cart_notification';
+					protected $extension_id = '1';
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/controller/checkout/cart.php">
+		<operation>
+			<search position="after"><![CDATA[
+				$json['success']
+			]]></search>
+			<add><![CDATA[
+				if ($product_info['image']) {
+					$this->load->model('tool/image');
+					
+					$json['image'] = $this->model_tool_image->resize($product_info['image'], 100, 100);
+				} else {
+					$json['image'] = '';
+				}
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/language/*/product/product.php">
+		<operation>
+			<search position="after" index="1"><![CDATA[
+				$_
+			]]></search>
+			<add><![CDATA[
+				$_['text_continue_shopping'] = 'Continue Shopping';
+				$_['text_checkout'] = 'Checkout ';
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/controller/product/product.php">
+		<operation>
+			<search position="after"><![CDATA[
+				$this->load->model('catalog/product');
+			]]></search>
+			<add><![CDATA[
+				$data['text_continue_shopping'] = $this->language->get('text_continue_shopping');
+				$data['text_checkout'] = $this->language->get('text_checkout');
+				
+				$data['checkout'] = $this->url->link('checkout/checkout', '', 'SSL');
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/view/theme/*/template/product/product.tpl">
+		<operation error="skip" info="OC 2.0.1.0">
+			<search position="after"><![CDATA[
+				$('#cart-total').html(json['total']);
+			]]></search>
+			<add><![CDATA[
+				var image = json['image'];
+				
+				var html = '<div id="cart-overlay" style="display:none;"><div class="cart-overlay-container">';
+				html += '<img src="' + image + '" />';
+				html += '<div class="cart-message">' + json['success'] + '</div>';
+				html += '<div class="cart-clear"></div>';
+				html += '<a id="cart-overlay-continue">&laquo; <?php echo $text_continue_shopping; ?></a>';
+				html += '<a id="cart-overlay-checkout" href="<?php echo $checkout; ?>"><?php echo $text_checkout; ?> &raquo;</a>';
+				html += '</div></div>';
+
+				add_to_cart_notification(html);
+			]]></add>
+		</operation>
+		<operation error="skip" info="OC 2.0.2.0 and above">
+			<search position="after"><![CDATA[
+				$('#cart > button')
+			]]></search>
+			<add><![CDATA[
+				var image = json['image'];
+				
+				var html = '<div id="cart-overlay" style="display:none;"><div class="cart-overlay-container">';
+				html += '<img src="' + image + '" />';
+				html += '<div class="cart-message">' + json['success'] + '</div>';
+				html += '<div class="cart-clear"></div>';
+				html += '<a id="cart-overlay-continue">&laquo; <?php echo $text_continue_shopping; ?></a>';
+				html += '<a id="cart-overlay-checkout" href="<?php echo $checkout; ?>"><?php echo $text_checkout; ?> &raquo;</a>';
+				html += '</div></div>';
+
+				add_to_cart_notification(html);
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/language/*/common/footer.php">
+		<operation>
+			<search position="after" index="1"><![CDATA[
+				$_
+			]]></search>
+			<add><![CDATA[
+				$_['text_continue_shopping'] = 'Continue Shopping';
+				$_['text_checkout'] = 'Checkout ';
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/controller/common/footer.php">
+		<operation>
+			<search position="after"><![CDATA[
+				$data['contact'] = $this->url->link('information/contact');
+			]]></search>
+			<add><![CDATA[
+				$data['text_continue_shopping'] = $this->language->get('text_continue_shopping');
+				$data['text_checkout'] = $this->language->get('text_checkout');
+				
+				$data['checkout'] = $this->url->link('checkout/checkout', '', 'SSL');
+			]]></add>
+		</operation>
+	</file>
+	<file name="catalog/view/theme/*/template/common/footer.tpl">
+		<operation>
+			<search position="before"><![CDATA[
+				</body>
+			]]></search>
+			<add><![CDATA[
+				<?php if (!isset($this->request->get['route']) || (isset($this->request->get['route']) && $this->request->get['route'] != 'product/product')) { ?>
+				<script type="text/javascript"><!--
+				function trigger_overlay(text, image) {					
+					var html = '<div id="cart-overlay" style="display:none;"><div class="cart-overlay-container">';
+					html += '<img src="' + image + '" />';
+					html += '<div class="cart-message">' + text + '</div>';
+					html += '<div class="cart-clear"></div>';
+					html += '<a class="button" id="cart-overlay-continue">&laquo; <?php echo $text_continue_shopping; ?></a>';
+					html += '<a class="button" id="cart-overlay-checkout" href="<?php echo $checkout; ?>"><?php echo $text_checkout; ?> &raquo;</a>';
+					html += '</div></div>';
+
+					add_to_cart_notification(html);
+				}
+				//--></script>
+				<?php } ?>
+			]]></add>
+		</operation>
+	</file>
+</modification>

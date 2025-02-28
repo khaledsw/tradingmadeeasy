@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+	<id>Key-Six, s.r.o. - Free SMTP Fix for OpenCart 2.0.2.0</id>
+	<version>1.1</version>
+	<vqmver>2.5.0</vqmver>
+	<author>Key-Six, s.r.o. | info@key-six.sk</author>
+	<file name="admin/controller/common/forgotten.php,admin/controller/marketing/contact.php,admin/model/marketing/affiliate.php,admin/model/sale/customer.php,admin/model/sale/return.php,admin/model/sale/voucher.php,catalog/controller/account/forgotten.php,catalog/controller/affiliate/forgotten.php,catalog/controller/information/contact.php,catalog/model/account/customer.php,catalog/model/affiliate/affiliate.php,catalog/model/catalog/review.php,catalog/model/checkout/order.php,catalog/model/checkout/voucher.php,catalog/model/openbay/ebay_order.php,system/library/ebay.php,system/library/openbay.php">
+		<operation error="skip">
+			<search position="replace"><![CDATA[$mail->smtp_hostname = $this->config->get('config_mail_smtp_host');]]></search>
+			<add><![CDATA[$mail->smtp_hostname = $this->config->get('config_mail_smtp_hostname');]]></add>
+		</operation>
+	</file>
+	<file name="catalog/model/account/customer.php">
+		<operation error="skip">
+			<search position="before"><![CDATA[$mail->setSubject($this->language->get('text_new_customer'));]]></search>
+			<add><![CDATA[			$mail->setTo($this->config->get('config_email'));
+			$mail->setFrom($this->config->get('config_email'));
+			$mail->setSender($this->config->get('config_name'));
+]]></add>
+		</operation>
+	</file>
+</modification>

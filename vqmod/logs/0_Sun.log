@@ -1,0 +1,13 @@
+---------- Date: 2023-12-24 00:08:06 ~ IP : ::1 ----------
+REQUEST URI : /tradingmadeeasy/
+MOD DETAILS:
+   modFile   : C:\xampp\htdocs\tradingmadeeasy\vqmod/xml/a_vqmod_d_quickcheckout.xml
+   id        : AJAX QUICK CHECKOUT V6 BY DREAMVENTION
+   version   : 2.0.0.0
+   vqmver    : 2.2.1
+   author    : dreamvention.com
+VQModObject::parseMods - Could not resolve path for [system/library/cart/tax.php] (SKIPPED)
+
+----------------------------------------------------------------------
+
+

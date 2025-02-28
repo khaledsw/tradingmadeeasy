@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+    <id>Category menus control</id>
+    <version>1.0</version>
+    <vqmver>2.4.0</vqmver>
+	<email>feras_abdo@hotmail.com</email>
+    <author>Feras Abdo</author>
+	
+	<!--Change admin text-->
+    <file name="admin/language/english/catalog/category.php">
+		<operation error="skip">
+			<search position="replace"><![CDATA['Top';]]></search>
+			<add><![CDATA['Menu Display';]]></add>
+		</operation>
+		<operation error="skip">
+			<search position="replace"><![CDATA['Display in the top menu bar. Only works for the top parent categories.';]]></search>
+			<add><![CDATA['Only works for the top parent categories.';]]></add>
+		</operation>
+	</file>
+	
+	<!--Change admin control-->
+	<file name="admin/view/template/catalog/category_form.tpl">
+		<operation error="skip">
+			<search position="replace" offset="5"><![CDATA[<?php if ($top) { ?>]]></search>
+			<add><![CDATA[<?php $both_menus = ""; $top_menu = ""; $left_menu = ""; $none = ""; ?>
+				<?php if($top == 1){
+					$both_menus = "selected=selected";
+				} elseif($top == 2) {
+					$top_menu = "selected=selected";
+				}elseif($top == 3) {
+					$none = "selected=selected";
+				}else{
+					$left_menu = "selected=selected";
+				} ?>
+				<div style="margin-left: -20px;">
+				<select name="top" class="form-control">
+					<option value="3" <?php echo $none; ?>>None</option>
+					<option value="0" <?php echo $left_menu; ?>>Side menu only</option>
+					<option value="2" <?php echo $top_menu; ?>>Top menu only</option>
+					<option value="1" <?php echo $both_menus; ?>>Top and side menus</option>
+				</select></div>]]></add>
+		</operation>
+	</file>
+	
+	<!--Apply new settings on front site-->
+	<file name="catalog/controller/module/category.php">
+		<operation error="skip">
+			<search position="after"><![CDATA[foreach ($categories as $category) {]]></search>
+			<add><![CDATA[if ($category['top'] == 2 || $category['top'] == 3) continue; ]]></add>
+		</operation>
+	</file>
+	
+	<!--Apply new settings on front site for top menu-->
+	<file name="catalog/controller/common/header.php">
+		<operation error="skip">
+			<search position="after"><![CDATA[foreach ($categories as $category) {]]></search>
+			<add><![CDATA[if ($category['top'] == 3) continue; ]]></add>
+		</operation>
+	</file>
+	
+	<!--Custom fix-->
+	<file name="catalog/view/theme/*/template/common/header.tpl">
+		<operation error="skip">
+			<search position="replace"><![CDATA[<?php if(count($category['children'][$i]['children_level2'])>0){ ?>]]></search>
+			<add><![CDATA[<?php if(count($category['children'][$i]['children_level2'])>0 and !in_array($category['children'][$i]['id'],array('1_99','1_105','1_112'))){ ?>]]></add>
+		</operation>
+		<operation error="skip">
+			<search position="replace"><![CDATA[<?php if ($category['children'][$i]['children_level2']) { ?>]]></search>
+			<add><![CDATA[<?php if ($category['children'][$i]['children_level2'] and !in_array($category['children'][$i]['id'],array('1_99','1_105','1_112'))) { ?>]]></add>
+		</operation>
+	</file>
+	
+</modification>

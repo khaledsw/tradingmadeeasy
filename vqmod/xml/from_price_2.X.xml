@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+    <id>From Price</id>
+    <version>1.0.0</version>
+    <vqmver>2.X</vqmver>
+    <author>Theme Module</author>
+    <file name="catalog/controller/module/bestseller.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$result['special']) {]]></search>
+            <add><![CDATA[
+                    $product_info = $this->model_catalog_product->getProduct($result['product_id']);
+
+                    if ($product_info) {
+                        $discount_price = $this->model_catalog_product->getProductDiscounts($result['product_id']);
+                        $from_price = '';
+                        if ($discount_price) {
+                            $discount_price_array = array();
+
+                            foreach ($discount_price as $discount) {
+                                $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                            }
+
+                            $from_price = $this->currency->format(min($discount_price_array));
+                        }
+                    }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/default/template/module/bestseller.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if (!$product['special']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>    
+    <!--Featured Module-->
+    <file name="catalog/controller/module/featured.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$product_info['special']) {]]></search>
+            <add><![CDATA[
+                $discount_price = $this->model_catalog_product->getProductDiscounts($product_id);
+                $from_price = '';
+                if ($discount_price) {
+                    $discount_price_array = array();
+
+                    foreach ($discount_price as $discount) {
+                        $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                    }
+
+                    $from_price = $this->currency->format(min($discount_price_array));
+                }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>        
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/module/featured.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if ($product['price']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>
+    <!--Latest Module-->
+    <file name="catalog/controller/module/latest.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$result['special']) {]]></search>
+            <add><![CDATA[
+                    $product_info = $this->model_catalog_product->getProduct($result['product_id']);
+
+                    if ($product_info) {
+                        $discount_price = $this->model_catalog_product->getProductDiscounts($result['product_id']);
+                        $from_price = '';
+                        if ($discount_price) {
+                            $discount_price_array = array();
+
+                            foreach ($discount_price as $discount) {
+                                $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                            }
+
+                            $from_price = $this->currency->format(min($discount_price_array));
+                        }
+                    }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/module/latest.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if ($product['price']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>
+    <!--Special Module-->
+    <file name="catalog/controller/module/special.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$result['special']) {]]></search>
+            <add><![CDATA[
+                    $product_info = $this->model_catalog_product->getProduct($result['product_id']);
+
+                    if ($product_info) {
+                        $discount_price = $this->model_catalog_product->getProductDiscounts($result['product_id']);
+                        $from_price = '';
+                        if ($discount_price) {
+                            $discount_price_array = array();
+
+                            foreach ($discount_price as $discount) {
+                                $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                            }
+
+                            $from_price = $this->currency->format(min($discount_price_array));
+                        }
+                    }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/module/special.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if ($product['price']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>
+    <!--Product Page-->
+    <file name="catalog/controller/product/product.php">
+        <operation>
+            <search position="before"><![CDATA[$data['options'] = array();]]></search>
+            <add><![CDATA[
+                $discount_price = $this->model_catalog_product->getProductDiscounts($this->request->get['product_id']);
+                if ($discount_price) {
+                    $discount_price_array = array();
+
+                    foreach ($discount_price as $discount) {
+                        $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                    }
+
+                    $data['from_price'] = $this->currency->format(min($discount_price_array));
+                }
+                
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA[if ((float)$result['special']) {]]></search>
+            <add><![CDATA[
+                $product_info = $this->model_catalog_product->getProduct($result['product_id']);
+
+                if ($product_info) {
+                    $discount_price = $this->model_catalog_product->getProductDiscounts($result['product_id']);
+                    $from_price = '';
+                    if ($discount_price) {
+                        $discount_price_array = array();
+
+                        foreach ($discount_price as $discount) {
+                            $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                        }
+
+                        $from_price = $this->currency->format(min($discount_price_array));
+                    }
+                }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/product/product.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if (!$special) { ?>]]></search>
+            <add><![CDATA[
+                <?php if(isset($from_price)) { ?>
+                <li>
+                    <h2 class="prices">From <?php echo $from_price; ?></h2>
+                </li>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before" index="1"><![CDATA[<?php if ($tax) { ?>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA[<?php if ($product['price']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>
+    <!--Category Page-->
+    <file name="catalog/controller/product/category.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$result['special']) {]]></search>
+            <add><![CDATA[
+                    $product_info = $this->model_catalog_product->getProduct($result['product_id']);
+
+                    if ($product_info) {
+                        $discount_price = $this->model_catalog_product->getProductDiscounts($result['product_id']);
+                        $from_price = '';
+                        if ($discount_price) {
+                            $discount_price_array = array();
+
+                            foreach ($discount_price as $discount) {
+                                $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                            }
+
+                            $from_price = $this->currency->format(min($discount_price_array));
+                        }
+                    }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/product/category.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if ($product['price']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>    
+    <!--Manufacturer Page-->
+    <file name="catalog/controller/product/manufacturer.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$result['special']) {]]></search>
+            <add><![CDATA[
+                    $product_info = $this->model_catalog_product->getProduct($result['product_id']);
+
+                    if ($product_info) {
+                        $discount_price = $this->model_catalog_product->getProductDiscounts($result['product_id']);
+                        $from_price = '';
+                        if ($discount_price) {
+                            $discount_price_array = array();
+
+                            foreach ($discount_price as $discount) {
+                                $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                            }
+
+                            $from_price = $this->currency->format(min($discount_price_array));
+                        }
+                    }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/product/manufacturer_info.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if ($product['price']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>    
+    <!--Special Product Page-->
+    <file name="catalog/controller/product/special.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$result['special']) {]]></search>
+            <add><![CDATA[
+                    $product_info = $this->model_catalog_product->getProduct($result['product_id']);
+
+                    if ($product_info) {
+                        $discount_price = $this->model_catalog_product->getProductDiscounts($result['product_id']);
+                        $from_price = '';
+                        if ($discount_price) {
+                            $discount_price_array = array();
+
+                            foreach ($discount_price as $discount) {
+                                $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                            }
+
+                            $from_price = $this->currency->format(min($discount_price_array));
+                        }
+                    }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/product/special.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if ($product['price']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>    
+    <!--Search Page-->
+    <file name="catalog/controller/product/search.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$result['special']) {]]></search>
+            <add><![CDATA[
+                    $product_info = $this->model_catalog_product->getProduct($result['product_id']);
+
+                    if ($product_info) {
+                        $discount_price = $this->model_catalog_product->getProductDiscounts($result['product_id']);
+                        $from_price = '';
+                        if ($discount_price) {
+                            $discount_price_array = array();
+
+                            foreach ($discount_price as $discount) {
+                                $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                            }
+
+                            $from_price = $this->currency->format(min($discount_price_array));
+                        }
+                    }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'     => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/product/search.tpl">
+        <operation>
+            <search position="before"><![CDATA[<?php if ($product['price']) { ?>]]></search>
+            <add><![CDATA[
+                <?php if ($product['from_price']) { ?>
+                <p class="price">
+                    <span class="from-price">From <?php echo $product['from_price']; ?></span>
+                    <span class="price-tax">Inc Tax</span>
+                </p>
+                <?php } else {?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="after" offset="3"><![CDATA[<span class="price-tax"><?php echo $text_tax; ?> <?php echo $product['tax']; ?></span>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>
+    <!--Comapre Product Page-->
+    <file name="catalog/controller/product/compare.php">
+        <operation>
+            <search position="before"><![CDATA[if ((float)$product_info['special']) {]]></search>
+            <add><![CDATA[
+                $discount_price = $this->model_catalog_product->getProductDiscounts($product_id);
+                $from_price = '';
+                if ($discount_price) {
+                    $discount_price_array = array();
+
+                    foreach ($discount_price as $discount) {
+                        $discount_price_array[] = $this->tax->calculate($discount['price'], $product_info['tax_class_id'], $this->config->get('config_tax'));
+                    }
+
+                    $from_price = $this->currency->format(min($discount_price_array));
+                }
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="before"><![CDATA['special'      => $special,]]></search>
+            <add><![CDATA['from_price' => $from_price,]]></add>
+        </operation>        
+    </file>
+    <file name="catalog/view/theme/OPC070154/template/product/compare.tpl">
+        <operation>
+            <search position="replace"><![CDATA[<td><?php if ($products[$product['product_id']]['price']) { ?>]]></search>
+            <add><![CDATA[
+                <td>
+                    <?php if ($product['from_price']) { ?>
+                        <span class="price-new">From <?php echo $product['from_price']; ?></span>
+                    <?php } else {?>
+                        <?php if ($products[$product['product_id']]['price']) { ?>
+            ]]></add>
+        </operation>
+        <operation>
+            <search position="replace" index="7"><![CDATA[</td>]]></search>
+            <add><![CDATA[<?php } ?>]]></add>
+        </operation>
+    </file>        
+</modification>

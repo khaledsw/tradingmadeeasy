@@ -1,0 +1,104 @@
+<!-- Created by TomasG //-->
+<modification>
+	<id><![CDATA[Add2LevelLinks]]></id>
+	<version><![CDATA[1.0]]></version>
+	<vqmver><![CDATA[2.x]]></vqmver>
+	<author><![CDATA[TomasG]]></author>	
+
+		<file name="admin/view/template/common/menu.tpl">		
+			<operation error="log">
+						<search position="before"><![CDATA[ <li id="catalog"><a class="parent"><i class="fa fa-tags fa-fw"></i> <span><?php echo $text_catalog; ?></span></a> ]]></search>
+						<add><![CDATA[
+
+
+							<?php if ( (isset($category_array)) && (isset($link_array)) ) { ?>
+
+							<?php $sess_token = $_SESSION['token']; ?>
+
+								<li><a class="parent"><i class="fa fa-link fa-fw"></i> <span><?php if ( (isset($menu_title)) && (!empty($menu_title)) ) { echo trim($menu_title); } else { echo 'Links'; } ?></span></a>
+
+									<ul>
+										<?php foreach ($category_array as $imiw_cat) { ?>
+											<li><a class="parent"><?php echo $imiw_cat['category_title']; ?></a>
+											<ul>
+												<?php foreach ($link_array as $imiw_link) { ?>
+													<?php if ($imiw_link['category_id']==$imiw_cat['id']) { ?>
+														<li><a href="<?php 
+																$custom_linkz_pos = strpos($imiw_link['link_href'], 'token=');
+											 					if ($custom_linkz_pos === false) {	
+											 						echo trim($imiw_link['link_href']);
+											 					} else {
+											 						echo trim($imiw_link['link_href']).'&token='.$sess_token;
+											 					}	
+															?>" <?php if ($imiw_link['new_window']==1) { echo ' target="_blank" '; } ?> ><?php echo $imiw_link['link_title']; ?></a></li>
+													<?php } ?>
+												<?php } ?>
+											</ul>
+										<?php } ?>
+
+										<?php foreach ($link_array as $imiw_link) { ?>
+													<?php if ($imiw_link['category_id']==0) { ?>
+														<li><a href="<?php
+														 	$custom_linkz_pos = strpos($imiw_link['link_href'], 'token=');
+											 					if ($custom_linkz_pos === false) {	
+											 						echo trim($imiw_link['link_href']);
+											 					} else {
+											 						echo trim($imiw_link['link_href']).'&token='.$sess_token;
+											 					}
+														 ?>" <?php if ($imiw_link['new_window']==1) { echo ' target="_blank" '; } ?> ><?php echo $imiw_link['link_title']; ?></a></li>
+													<?php } ?>
+										<?php } ?>
+
+									</ul>
+								</li>
+
+							<?php } ?>
+		
+						]]></add>
+					</operation>
+
+		</file>	
+
+
+		<file name="admin/controller/common/menu.php">		
+			<operation error="log">
+						<search position="before"><![CDATA[ $data['home'] = $this->url->link('common/dashboard', 'token=' . $this->session->data['token'], 'SSL'); ]]></search>
+						<add><![CDATA[
+
+								$result = $this->db->query("SELECT * FROM `" . DB_PREFIX . "extension` WHERE `code` = 'addLinksToAdminMenu'");
+								if($result->num_rows) {
+
+										$query1 = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "imiw_links' ");
+										$imiw_links_exist = count($query1->rows);
+
+										if ($imiw_links_exist==0) {
+											$this->db->query(" CREATE TABLE IF NOT EXISTS " . DB_PREFIX . "imiw_links (id int(11) AUTO_INCREMENT, link_title varchar(255), link_href varchar(255), new_window int(3), category_id int(11), PRIMARY KEY (id) ) ");	
+										}
+
+										$query2 = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "imiw_categories' ");
+										$imiw_categories_exist = count($query2->rows);
+
+										if ($imiw_categories_exist==0) {
+											$this->db->query(" CREATE TABLE IF NOT EXISTS " . DB_PREFIX . "imiw_categories (id int(11) AUTO_INCREMENT, category_title varchar(255), PRIMARY KEY (id) ) ");	
+										}
+
+									$result3 = $this->db->query("SELECT * FROM " . DB_PREFIX . "imiw_categories ");
+
+								    $data['category_array'] = $result3->rows;
+
+								    $result2 = $this->db->query("SELECT " . DB_PREFIX . "imiw_links.*, " . DB_PREFIX . "imiw_categories.category_title as category_title FROM " . DB_PREFIX . "imiw_links left join " . DB_PREFIX . "imiw_categories on " . DB_PREFIX . "imiw_links.category_id = " . DB_PREFIX . "imiw_categories.id ");
+
+								    $data['link_array'] = $result2->rows;
+
+								    $this->load->language('module/addLinksToAdminMenu');
+									$data['menu_title'] = $this->language->get('menu_title');
+
+								}	
+												
+
+						]]></add>
+					</operation>
+
+		</file>	
+	
+</modification>

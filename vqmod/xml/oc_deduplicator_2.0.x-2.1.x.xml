@@ -1,0 +1,467 @@
+<modification>
+
+    <id>Bens OpenCart SEO Link Deduplicator for OpenCart 2.0.x - OpenCart 2.1.x</id>
+    <version>2.1.2</version>
+    <vqmver>2.1.7</vqmver>
+    <author>Ben W - ben@forlent.com</author>
+
+    <file name="catalog/controller/product/product.php">
+        <operation>
+            <search position="before"><![CDATA[
+			$data['breadcrumbs'][] = array(
+		]]></search>
+            <add><![CDATA[
+			if (!isset($can_url)) {
+				$can_url=$this->url->link('product/product', '&product_id=' . $this->request->get['product_id']);
+			}
+			$config_url=parse_url($this->config->get('config_url'));
+			$proper_url=str_ireplace(array('http://'.$config_url['host'].'/', 'https://'.$config_url['host'].'/'), '', $can_url);
+            $actual_url=preg_replace('@^/@', '', rawurldecode($_SERVER['REQUEST_URI']));
+
+            //comment this next line out to deduplicate ALL query strings: can break some opencart features
+			$actual_url=preg_replace('@\?(.*)$@', '', $actual_url);
+
+			//uncomment next line for debugging if you're getting redirect loops
+			//exit("Actual url is &quot;$actual_url&quot;, Proper URL is: &quot;$proper_url&quot;");
+
+            $GLOBALS['spc_proper_url']=$proper_url;  //Super Page Cache compatibility
+
+			if ($actual_url!=$proper_url && !preg_match('@product_id=[0-9]+@', $proper_url) && !isset($GLOBALS['dont_dedupe'])) {
+				header("HTTP/1.1 301 Moved Permanently");
+				header("Location: ".$can_url);
+				exit;
+			}
+
+		]]></add>
+        </operation>
+    </file>
+
+    <file name="catalog/controller/common/home.php">
+        <operation>
+            <search position="after"><![CDATA[
+			$this->document->setDescription($this->config->get('config_meta_description'));
+		]]></search>
+            <add><![CDATA[
+			if (!isset($can_url)) {
+				$can_url=$this->url->link('common/home');
+				$can_url=str_replace('index.php?route=common/home', '', $can_url);
+			}
+            $cparse_url=parse_url($this->config->get('config_url'));
+			$proper_url=str_ireplace(array('http://'.$cparse_url['host'].'/', 'https://'.$cparse_url['host'].'/'), '', $can_url);
+			$actual_url=preg_replace('@^/@', '', rawurldecode($_SERVER['REQUEST_URI']));
+
+			//comment this next line out to deduplicate ALL query strings (can break some opencart features)
+		    $actual_url=preg_replace('@\?(.*)$@', '', $actual_url);
+
+            //*** redirect default request options, i.e. page=1
+            $requests=$_GET;
+            unset($requests['_route_']); unset($requests['path']);
+            if (!empty($requests)) {
+                $do_redir=false;
+                foreach ($requests as $key=>$val) {
+                    if ($key=='route') {
+                        unset($requests[$key]); $do_redir=true;
+                    }
+                }
+
+                if ($do_redir) {
+                    if (substr($can_url,-1)<>'/') $can_url.='/'; //force homepage canonical to end in a slash to prevent duplication
+                    $can_url=$can_url . (!empty($requests) ? '?'.http_build_query($requests) : '');
+                    header("HTTP/1.1 301 Moved Permanently");
+                    header("Location: ".$can_url);
+                    exit;
+                }
+            }
+
+			//uncomment next line for debugging if you're getting redirect loops
+			//exit("<br>Actual url is &quot;$actual_url&quot;, Proper URL is: &quot;$proper_url&quot;");
+
+            $GLOBALS['spc_proper_url']=$proper_url;  //Super Page Cache compatibility
+
+			if ($actual_url!=$proper_url && !isset($GLOBALS['dont_dedupe'])) {
+				header("HTTP/1.1 301 Moved Permanently");
+				header("Location: ".$can_url);
+				exit;
+			}
+
+
+		]]></add>
+        </operation>
+    </file>
+
+    <file name="catalog/controller/product/category.php">
+        <operation>
+            <search position="after"><![CDATA[
+			if ($category_info) {
+		]]></search>
+            <add><![CDATA[
+            $can_url=$this->url->link('product/category', "path=".$this->request->get['path']);
+
+            $config_url=parse_url($this->config->get('config_url'));
+            $proper_url=html_entity_decode(str_ireplace(array('http://'.$config_url['host'].'/', 'https://'.$config_url['host'].'/'), '', $can_url));
+            $actual_url=preg_replace('@^/@', '', rawurldecode($_SERVER['REQUEST_URI']));
+
+            //comment this next line out to deduplicate ALL query strings: can break some opencart features
+            $actual_url=preg_replace('@\?(.*)$@', '', $actual_url);
+
+            $GLOBALS['spc_proper_url']=$proper_url;  //Super Page Cache compatibility
+
+            //*** redirect default request options, i.e. page=1
+            $requests=$this->request->get;
+            unset($requests['_route_']); unset($requests['route']); unset($requests['path']);
+            if (!empty($requests)) {
+                $do_redir=false;
+                foreach ($requests as $key=>$val) {
+                    if ($key=='page' && $val==1) {
+                        unset($requests[$key]); $do_redir=true;
+                    } elseif ($key=='sort' && $val=='p.sort_order') {
+                        unset($requests[$key]); $do_redir=true;
+                        if (isset($requests['order']) && $requests['order']=='ASC') {
+                            unset($requests['order']);
+                        }
+                    } elseif ($key=='limit' && $val==$this->config->get('config_catalog_limit')) {
+                        unset($requests[$key]); $do_redir=true;
+                    }
+                }
+
+                if ($do_redir) {
+                    $proper_url=$proper_url . (!empty($requests) ? '?'.http_build_query($requests) : '');
+                    header("HTTP/1.1 301 Moved Permanently");
+                    header("Location: ".$can_url);
+                    exit;
+                }
+            }
+
+            if (isset($this->request->get['filter']) && $this->request->get['filter']) {
+                if (!isset($this->request->get['page']) || !$this->request->get['page']) {
+                    $proper_url.='&filter='.$this->request->get['filter'];
+                }
+            }
+
+            //play a little nicer with some 3rd party modules, Brainyfilter modifies $this->request->get so we have to
+            //check $_GET directly.
+            if (!isset($_GET['route']) || !preg_match('@^module/@', $_GET['route'])) {
+                //uncomment next line for debugging if you're getting redirect loops
+                //exit("Actual url is &quot;$actual_url&quot;, Proper URL is: &quot;$proper_url&quot;");
+
+                if ($actual_url!=$proper_url && !preg_match('@path=[0-9]+@', $proper_url) && !isset($GLOBALS['dont_dedupe'])) {
+                    header("HTTP/1.1 301 Moved Permanently");
+                    header("Location: ".$can_url);
+                    exit;
+                }
+            }
+
+		]]></add>
+
+        </operation>
+    </file>
+
+    <file name="catalog/controller/information/information.php">
+        <operation>
+            <search position="before"><![CDATA[
+			$data['heading_title'] = $information_info['title'];
+		]]></search>
+            <add><![CDATA[
+
+			$last_breadcrumb=end($data['breadcrumbs']);
+
+			$can_url=$last_breadcrumb['href'];
+
+			$config_url=parse_url($this->config->get('config_url'));
+			$proper_url=str_ireplace(array('http://'.$config_url['host'].'/', 'https://'.$config_url['host'].'/'), '', $can_url);
+
+			$actual_url=preg_replace('@^/@', '', rawurldecode($_SERVER['REQUEST_URI']));
+
+			//comment this next line out to deduplicate ALL query strings: can break some opencart features
+			$actual_url=preg_replace('@\?(.*)$@', '', $actual_url);
+
+            $GLOBALS['spc_proper_url']=$proper_url;  //Super Page Cache compatibility
+
+			//uncomment next line for debugging if you're getting redirect loops
+			//exit("Actual url is &quot;$actual_url&quot;, Proper URL is: &quot;$proper_url&quot;");
+
+			if ($actual_url!=$proper_url && !preg_match('/information_id=[0-9]+/', $proper_url) && !isset($GLOBALS['dont_dedupe'])) {
+				header("HTTP/1.1 301 Moved Permanently");
+				header("Location: ".$can_url);
+				exit;
+			}
+
+		]]></add>
+
+        </operation>
+    </file>
+
+    <file name="catalog/controller/common/seo_url.php">
+        <operation>
+            <search position="before"><![CDATA[
+			return $link;
+		]]></search>
+            <add><![CDATA[
+			$link=str_replace('index.php?route=common/home', '', $link);
+		]]></add>
+
+        </operation>
+        <operation>
+            <search position="after"><![CDATA[
+			if (isset($data['route'])) {
+		]]></search>
+            <add><![CDATA[
+
+
+			if (!function_exists('catGetParent')) {
+                function catGetParent(&$th, $category_id) {   //can't use anonymous functions while PHP 5.2 is still in the wild :(
+                    $q=$th->db->query("SELECT * FROM " . DB_PREFIX . "category
+                                            LEFT JOIN ".DB_PREFIX."category_description USING (category_id)
+                                            WHERE category_id='".(int)$category_id."' LIMIT 1");
+                    return $q->rows[0];
+                }
+            }
+
+            if (!isset($url_info)) $url_info=$url_data; //1.5.1 compatibility
+
+			if ($data['route'] == 'product/product' && !isset($data['tracking']) && !isset($bens_routed_flag) && isset($data['product_id']) && isset($data['product_id'])) {
+				$pid=$data['product_id'];
+				$url_format=(int)$this->config->get('config_dedupe_format');
+
+				//find the lowest sort_order # of categories this product is in
+				$query = $this->db->query("SELECT *
+													FROM " . DB_PREFIX . "product_to_category
+													LEFT JOIN " . DB_PREFIX . "category USING (category_id)
+													LEFT JOIN ".DB_PREFIX."category_description USING (category_id)
+													WHERE product_id = '" . (int)$pid . "'
+													ORDER BY " . DB_PREFIX . "category.sort_order ASC
+													LIMIT 1");
+				$cats=$query->rows;
+				if (!empty($cats)) {
+					//build a tree from $cats[0] to the top tier (parent_id=0)
+					if (!function_exists('catGetParent')) {
+						function catGetParent(&$th, $category_id) {   //can't use anonymous functions, PHP 5.2 is still in the wild :(
+							$q=$th->db->query("SELECT * FROM " . DB_PREFIX . "category
+													LEFT JOIN ".DB_PREFIX."category_description USING (category_id)
+													WHERE category_id='".(int)$category_id."' LIMIT 1");
+							return $q->rows[0];
+						}
+					}
+					$cur_cat=$cats[0];
+					$cat_tree=array($cur_cat);
+					while ($cur_cat['parent_id']!=0) {
+						$cur_cat=catGetParent($this, $cur_cat['parent_id']);
+						$cat_tree[]=$cur_cat;
+					}
+
+					//get url_aliases and build a path
+					$subdir=str_replace('index.php', '', $url_info['path']);
+					$gpath=$subdir;
+					$cat_tree=array_reverse($cat_tree);
+
+					foreach ($cat_tree as &$cur_cat) {
+						$q=$this->db->query("SELECT * FROM ".DB_PREFIX."url_alias WHERE query='category_id=".$cur_cat['category_id']."'");
+						if ($q->num_rows>0) $gpath.='/'.$q->rows[0]['keyword'];
+
+						if ($url_format==1) break;
+					}
+					unset($cur_cat);
+
+					//get product seo key
+					$q=$this->db->query("SELECT * FROM ".DB_PREFIX."url_alias WHERE query='product_id=".$pid."'");
+					if ($q->num_rows==0) {
+                        //yuck, product has no SEO url, we must return a gross link
+
+                        return $url_info['scheme'] . '://' . $url_info['host'] . (isset($url_info['port']) ? ':' . $url_info['port'] : '') . $subdir . 'index.php?route=product/product&amp;product_id='.$pid;
+
+                    } else {
+                        if ($url_format==2) {
+                            $gpath=$subdir.'/'.$q->rows[0]['keyword'];
+                        } else {
+                            $gpath.='/'.$q->rows[0]['keyword'];
+                        }
+
+                        $gpath=preg_replace('@/+@', '/', $gpath); //something went wrong; keep from breaking link
+                        return $url_info['scheme'] . '://' . $url_info['host'] . (isset($url_info['port']) ? ':' . $url_info['port'] : '') . $gpath;
+                    }
+				}
+			} elseif ($data['route'] == 'product/category' && !isset($data['tracking']) && !isset($bens_routed_flag) && isset($data['path'])) {
+			    //*** Route categories
+			    $is_non_seo=false;
+			    $cid=explode('_',$data['path']);
+			    $cid=array_pop($cid);
+
+                $query = $this->db->query("SELECT *
+													FROM " . DB_PREFIX . "category
+													LEFT JOIN ".DB_PREFIX."category_description USING (category_id)
+													WHERE category_id = '" . (int)$cid . "'
+													LIMIT 1");
+				$cats=$query->rows;
+				if (!empty($cats)) {
+					//build a tree from $cid to the top tier (parent_id=0)
+
+					$cur_cat=$cats[0];
+					$cat_tree=array($cur_cat);
+					while ($cur_cat['parent_id']!=0) {
+						$cur_cat=catGetParent($this, $cur_cat['parent_id']);
+						$cat_tree[]=$cur_cat;
+					}
+
+					//get url_aliases and build a path
+					$subdir=str_replace('index.php', '', $url_info['path']);
+					$gpath=$subdir;
+					$cat_tree=array_reverse($cat_tree);
+
+					foreach ($cat_tree as &$cur_cat) {
+						$q=$this->db->query("SELECT * FROM ".DB_PREFIX."url_alias WHERE query='category_id=".$cur_cat['category_id']."'");
+						if ($q->num_rows==0) { $is_non_seo=true; break; } //every item must have an SEO url
+						$gpath.='/'.$q->rows[0]['keyword'];
+					}
+					unset($cur_cat);
+
+                    $gpath=preg_replace('@/+@', '/', $gpath); //something went wrong; keep from breaking link
+                    if (!$is_non_seo) {
+                        $params=array(); $pagestr='';
+                        if (isset($data['page']) && $data['page']) $params[]='page='.$data['page'];
+                        if (isset($data['sort']) && $data['sort']) $params[]='sort='.$data['sort'];
+                        if (isset($data['order']) && $data['order']) $params[]='order='.$data['order'];
+                        if (isset($data['limit']) && $data['limit']) $params[]='limit='.$data['limit'];
+                        if (isset($data['filter']) && $data['filter']) $params[]='filter='.$data['filter'];
+                        if (isset($data['bfilter']) && $data['bfilter']) $params[]='bfilter='.$data['bfilter'];
+                        if (!empty($params)) $pagestr='?'.implode('&', $params);
+                        return $url_info['scheme'] . '://' . $url_info['host'] . (isset($url_info['port']) ? ':' . $url_info['port'] : '') . $gpath . $pagestr;
+                    }
+                }
+			}
+
+			$bens_routed_flag=true; //keep from conflicting with my other products
+
+
+		]]></add>
+        </operation>
+    </file>
+
+    <file name="system/library/pagination.php">
+        <operation>
+            <search position="replace"><![CDATA[
+			$output .= '<li><a href="' . str_replace('{page}', $page - 1, $this->url) . '">' . $this->text_prev . '</a></li>';
+		]]></search>
+            <add><![CDATA[
+            $cparse_url=parse_url($this->url);
+            $querystr='?'.str_replace(array('page={page}&', 'page={page}'), '', $cparse_url['query']);
+            if (strlen($querystr)<3) $querystr='';
+            $pageless_url=$cparse_url['scheme'].'://'.$cparse_url['host'].$cparse_url['path'].$querystr;
+
+            $output .= ' <a href="' . $pageless_url . '">' . $this->text_first . '</a>';
+            if (($page-1)<2) {
+                //replace page 1 with nothing to prevent duplication
+                $output.=' <a href="' . $pageless_url . '">' . $this->text_prev . '</a> ';
+            } else {
+                $output .= ' <a href="' . str_replace('{page}', $page - 1, $this->url) . '">' . $this->text_prev . '</a> ';
+            }
+		]]></add>
+        </operation>
+
+        <operation>
+            <search position="replace"><![CDATA[
+			$output .= '<li><a href="' . str_replace('{page}', $i, $this->url) . '">' . $i . '</a></li>';
+		]]></search>
+            <add><![CDATA[
+
+
+            if ($i==1) {
+                //replace page 1 with nothing to prevent duplication
+                $output .= ' <li><a href="' . $pageless_url . '">' . $i . '</a></li> ';
+            } else {
+                $output .= ' <li><a href="' . str_replace('{page}', $i, $this->url) . '">' . $i . '</a></li> ';
+            }
+		]]></add>
+        </operation>
+    </file>
+
+    <file name="admin/view/template/common/dashboard.tpl">
+        <operation>
+            <search position="before"><![CDATA[
+           <?php if ($error_install) { ?>
+           ]]></search>
+            <add><![CDATA[
+            <?php
+            $check_updates=true;
+
+            //***** uncomment the following line if you want to disable automatic update checks: *****
+            //$check_updates=false;
+
+            if ($check_updates) {
+
+                //load version number from XML file
+                $fil=@file_get_contents('../vqmod/xml/oc_deduplicator_2.0.x.xml');
+                $ver=@preg_match('@<version>(.*)</version>@Ui', $fil, $vmatch);
+
+                $product='DEDUPE';
+                $version=@$vmatch[1];
+
+                if ($version && function_exists('curl_init')) {
+                    $ch = @curl_init("http://www.forlent.com/checkupgrade.php?product=".$product."&version=".$version);
+                    curl_setopt($ch, CURLOPT_HEADER, 0);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+                    $res=@curl_exec($ch);
+                    curl_close($ch);
+
+                    if ($res) {
+                        $res=@unserialize($res);
+                        if (!empty($res['upgrade_url'])) {
+                            ?>
+                            <div>There is a new version of OpenCart SEO Link Deduplicator available. Latest version is <?php echo $res['upgrade_ver'] ?>, you're running <?php echo $version ?>. <a href="<?php echo htmlentities($res['upgrade_url']) ?>">Download it now</a></div><br>
+                            <?php
+                        }
+                    }
+
+                }
+
+            }
+            ?>
+
+           ]]></add>
+        </operation>
+    </file>
+
+    <file name="admin/controller/setting/setting.php">
+        <operation>
+            <search position="before"><![CDATA[
+           if (isset($this->request->post['config_return_id'])) {
+           ]]></search>
+            <add><![CDATA[
+            if (isset($this->request->post['config_dedupe_format'])) {
+                $data['config_dedupe_format'] = $this->request->post['config_dedupe_format'];
+            } else {
+                $data['config_dedupe_format'] = $this->config->get('config_dedupe_format');
+            }
+
+            ]]></add>
+        </operation>
+    </file>
+
+    <file name="admin/view/template/setting/setting.tpl">
+        <operation>
+            <search position="before"><![CDATA[
+           <legend><?php echo $text_return; ?></legend>
+           ]]></search>
+            <add><![CDATA[
+
+                <legend>Product URL Format</legend>
+                <div class="form-group">
+                  <label class="col-sm-2 control-label" for="input-return"><span data-toggle="tooltip" title="Changes the format of the URL of product pages.">Product URL Scheme</span></label>
+                  <div class="col-sm-10">
+                  <input type="radio" value="0" name="config_dedupe_format" id="config_dedupe_format_0" class="" <?php if (!$config_dedupe_format) echo ' checked'; ?>> <label for="config_dedupe_format_0" class="radio-inline">http://www.yoursite.com/main-category/sub-category/product-name (default)</label><br>
+                  <input type="radio" value="1" name="config_dedupe_format" id="config_dedupe_format_1" class="" <?php if ($config_dedupe_format==1) echo ' checked'; ?>> <label for="config_dedupe_format_1" class="radio-inline">http://www.yoursite.com/main-category/product-name</label><br>
+                  <input type="radio" value="2" name="config_dedupe_format" id="config_dedupe_format_2" class="" <?php if ($config_dedupe_format==2) echo ' checked'; ?>> <label for="config_dedupe_format_2" class="radio-inline">http://www.yoursite.com/product-name</label>
+                  </div>
+                </div>
+              </fieldset>
+              <fieldset>
+
+            ]]></add>
+        </operation>
+    </file>
+
+
+
+
+
+</modification>

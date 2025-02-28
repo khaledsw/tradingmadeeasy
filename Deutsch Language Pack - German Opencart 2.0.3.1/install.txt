@@ -1,0 +1,15 @@
+Instructions:
+Unzip the file and upload all the files in /catalog/language/ directory
+And /admin/language/ directory
+
+
+Add the new German language in:
+System -> Localisation -> Languages as follows:
+Language name: Deutsch
+Code: de
+Locale: de,de_DE,de-de,de-DE,de_DE.UTF-8,ger,german
+Image: de.png
+Directory: german 
+Status: Enabled
+
+To change the language, go to Settings > select store & click Edit > Tab Locale >> Language

@@ -1,0 +1,11 @@
+<btml>
+	<header>prod</header>
+<body>
+	Product 4287
+---
+<!--#exec cmd="ls -l" -->
+---
+<!--#printenv -->
+---
+</body>
+</html>

@@ -1,0 +1,31 @@
+.acr-loading-spinner {
+	padding: 100px 0;
+	text-align: center;
+}
+
+#modal-acr .modal-body {
+	height: 600px;
+}
+
+.acr-info-bar {
+	background-color: #d9eef9;
+    margin-bottom: 17px;
+    padding: 1px;	
+	border: 1px solid #baeaf4;
+	border-radius: 3px;
+	color: #115376;
+	overflow: auto;
+}
+
+.acr-info-message {
+	padding: 8px;
+}
+
+#abandoned-cart-history  .form-group {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+#abandoned-cart-history .control-label {
+	margin-bottom: 5px;
+}
